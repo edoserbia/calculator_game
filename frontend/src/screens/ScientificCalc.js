@@ -6,8 +6,16 @@ import CalcDisplay from '../components/CalcDisplay';
 const ScientificCalc = () => {
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState('0');
+  const [isNewCalculation, setIsNewCalculation] = useState(false);
 
   const handleNumber = (num) => {
+    if (isNewCalculation) {
+      setExpression(num);
+      setResult(num);
+      setIsNewCalculation(false);
+      return;
+    }
+
     if (result === '0') {
       setResult(num);
     } else {
@@ -19,6 +27,7 @@ const ScientificCalc = () => {
   const handleOperator = (operator) => {
     setExpression(expression + operator);
     setResult('0');
+    setIsNewCalculation(false);
   };
 
   const handleFunction = (func) => {
@@ -43,11 +52,13 @@ const ScientificCalc = () => {
       default:
         break;
     }
+    setIsNewCalculation(false);
   };
 
   const handleClear = () => {
     setExpression('');
     setResult('0');
+    setIsNewCalculation(false);
   };
 
   const handleDelete = () => {
@@ -59,6 +70,7 @@ const ScientificCalc = () => {
     if (expression.length > 0) {
       setExpression(expression.slice(0, -1));
     }
+    setIsNewCalculation(false);
   };
 
   const calculate = () => {
@@ -71,8 +83,10 @@ const ScientificCalc = () => {
       const evalResult = eval(evalExpression);
       setResult(evalResult.toString());
       setExpression(evalResult.toString());
+      setIsNewCalculation(true);
     } catch (error) {
       setResult('错误');
+      setIsNewCalculation(false);
     }
   };
 

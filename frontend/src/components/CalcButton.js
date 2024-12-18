@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Text } from 'react-native-elements';
 
 const CalcButton = ({ title, onPress, type = 'number' }) => {
@@ -16,7 +16,11 @@ const CalcButton = ({ title, onPress, type = 'number' }) => {
   ];
 
   return (
-    <TouchableOpacity style={buttonStyle} onPress={onPress}>
+    <TouchableOpacity
+      style={buttonStyle}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <Text style={textStyle}>{title}</Text>
     </TouchableOpacity>
   );
@@ -25,30 +29,38 @@ const CalcButton = ({ title, onPress, type = 'number' }) => {
 const styles = StyleSheet.create({
   button: {
     flex: 1,
+    aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#2c2c2c',
-    margin: 5,
-    borderRadius: 10,
-    height: 60,
+    backgroundColor: '#333333',
+    borderRadius: 8,
+    margin: 1,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
   },
   operatorButton: {
-    backgroundColor: '#2089dc',
+    backgroundColor: '#ff9500',
   },
   functionButton: {
-    backgroundColor: '#4f4f4f',
+    backgroundColor: '#a6a6a6',
   },
   text: {
-    color: 'white',
+    color: '#ffffff',
     fontSize: 24,
     fontWeight: 'bold',
   },
   operatorText: {
-    color: 'white',
+    color: '#ffffff',
   },
   functionText: {
-    color: '#e0e0e0',
+    color: '#000000',
   },
 });
 
-export default CalcButton;
+export default React.memo(CalcButton);
