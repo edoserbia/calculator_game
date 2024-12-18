@@ -37,8 +37,11 @@ const Calculator = () => {
       try {
         // 验证秘籍
         const response = await verifySecret(secretCode + operator);
+        console.log('秘籍验证响应:', response);
         if (response.valid && response.game_type === 'snake') {
+          console.log('导航到贪吃蛇游戏');
           navigation.navigate('SnakeGame');
+          return;
         }
       } catch (error) {
         console.error('验证秘籍失败:', error);
