@@ -1,20 +1,35 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, PanResponder } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { submitScore } from '../api';
 
-// 获取屏幕尺寸
+// Get screen dimensions
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 const GRID_SIZE = 20;
-const CELL_SIZE = Math.floor(windowWidth / GRID_SIZE);
+const HEADER_HEIGHT = 80;
+const GAME_PADDING = 20;
 
-// 定义方向
+// Calculate the maximum possible cell size that will fit on the screen
+const CELL_SIZE = Math.floor(
+  Math.min(
+    (windowWidth - GAME_PADDING * 2) / GRID_SIZE,
+    (windowHeight - HEADER_HEIGHT - GAME_PADDING * 2) / GRID_SIZE
+  )
+);
+
+// Calculate game board dimensions
+const BOARD_SIZE = CELL_SIZE * GRID_SIZE;
+
+// Define directions
 const DIRECTIONS = {
   UP: { x: 0, y: -1 },
   DOWN: { x: 0, y: 1 },
   LEFT: { x: -1, y: 0 },
   RIGHT: { x: 1, y: 0 },
 };
+
+const SWIPE_THRESHOLD = 50;
 
 const SnakeGame = () => {
   const [snake, setSnake] = useState([
@@ -28,7 +43,36 @@ const SnakeGame = () => {
   const [score, setScore] = useState(0);
   const [gameLoop, setGameLoop] = useState(null);
 
-  // 生成新的食物位置
+  // Pan responder for swipe controls
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderRelease: (evt, gestureState) => {
+      const { dx, dy } = gestureState;
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+
+      if (Math.max(absDx, absDy) < SWIPE_THRESHOLD) return;
+
+      if (absDx > absDy) {
+        // Horizontal swipe
+        if (dx > 0) {
+          handleDirection(DIRECTIONS.RIGHT);
+        } else {
+          handleDirection(DIRECTIONS.LEFT);
+        }
+      } else {
+        // Vertical swipe
+        if (dy > 0) {
+          handleDirection(DIRECTIONS.DOWN);
+        } else {
+          handleDirection(DIRECTIONS.UP);
+        }
+      }
+    },
+  });
+
+  // Generate new food position
   const generateFood = useCallback(() => {
     let newFood;
     do {
@@ -40,9 +84,8 @@ const SnakeGame = () => {
     setFood(newFood);
   }, [snake]);
 
-  // 检查碰撞
+  // Check collision
   const checkCollision = useCallback((head) => {
-    // 检查墙壁碰撞
     if (
       head.x < 0 ||
       head.x >= GRID_SIZE ||
@@ -51,13 +94,12 @@ const SnakeGame = () => {
     ) {
       return true;
     }
-    // 检查自身碰撞（跳过头部）
     return snake.slice(1).some(
       segment => segment.x === head.x && segment.y === head.y
     );
   }, [snake]);
 
-  // 移动蛇
+  // Move snake
   const moveSnake = useCallback(() => {
     setSnake(prevSnake => {
       const head = prevSnake[0];
@@ -73,7 +115,6 @@ const SnakeGame = () => {
 
       const newSnake = [newHead, ...prevSnake];
 
-      // 检查是否吃到食物
       if (newHead.x === food.x && newHead.y === food.y) {
         setScore(s => s + 10);
         generateFood();
@@ -85,7 +126,7 @@ const SnakeGame = () => {
     });
   }, [direction, food, checkCollision, generateFood]);
 
-  // 游戏结束处理
+  // Handle game over
   const handleGameOver = useCallback(async () => {
     if (gameLoop) {
       clearInterval(gameLoop);
@@ -94,11 +135,11 @@ const SnakeGame = () => {
     try {
       await submitScore(score, 'Player', 'snake');
     } catch (error) {
-      console.error('提交分数失败:', error);
+      console.error('Failed to submit score:', error);
     }
   }, [gameLoop, score]);
 
-  // 重新开始游戏
+  // Restart game
   const restartGame = useCallback(() => {
     if (gameLoop) {
       clearInterval(gameLoop);
@@ -114,7 +155,7 @@ const SnakeGame = () => {
     generateFood();
   }, [gameLoop, generateFood]);
 
-  // 开始游戏循环
+  // Game loop
   useEffect(() => {
     if (!isGameOver && !isPaused) {
       const interval = setInterval(moveSnake, 200);
@@ -124,7 +165,7 @@ const SnakeGame = () => {
     return undefined;
   }, [isGameOver, isPaused, moveSnake]);
 
-  // 初始化游戏
+  // Initialize game
   useEffect(() => {
     generateFood();
     return () => {
@@ -134,15 +175,14 @@ const SnakeGame = () => {
     };
   }, []);
 
-  // 暂停/继续游戏
+  // Toggle pause
   const togglePause = useCallback(() => {
     setIsPaused(prev => !prev);
   }, []);
 
-  // 方向控制
+  // Handle direction
   const handleDirection = useCallback((newDirection) => {
     setDirection(prevDirection => {
-      // 防止反向移动
       const isOpposite = (
         (prevDirection === DIRECTIONS.UP && newDirection === DIRECTIONS.DOWN) ||
         (prevDirection === DIRECTIONS.DOWN && newDirection === DIRECTIONS.UP) ||
@@ -160,7 +200,7 @@ const SnakeGame = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.score}>得分: {score}</Text>
+        <Text style={styles.score}>Score: {score}</Text>
         <TouchableOpacity 
           onPress={togglePause} 
           style={styles.pauseButton}
@@ -175,8 +215,10 @@ const SnakeGame = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.gameBoard}>
-        {/* 渲染食物 */}
+      <View 
+        style={styles.gameBoard}
+        {...panResponder.panHandlers}
+      >
         <View
           style={[
             styles.food,
@@ -187,7 +229,6 @@ const SnakeGame = () => {
           ]}
         />
 
-        {/* 渲染蛇 */}
         {snake.map((segment, index) => (
           <View
             key={`${segment.x}-${segment.y}`}
@@ -203,51 +244,16 @@ const SnakeGame = () => {
         ))}
       </View>
 
-      {/* 方向控制按钮 */}
-      <View style={styles.controls}>
-        <TouchableOpacity
-          style={[styles.controlButton, styles.upButton]}
-          onPress={() => handleDirection(DIRECTIONS.UP)}
-          activeOpacity={0.7}
-        >
-          <Icon name="arrow-up" type="font-awesome" color="#ffffff" />
-        </TouchableOpacity>
-        <View style={styles.horizontalControls}>
-          <TouchableOpacity
-            style={[styles.controlButton, styles.leftButton]}
-            onPress={() => handleDirection(DIRECTIONS.LEFT)}
-            activeOpacity={0.7}
-          >
-            <Icon name="arrow-left" type="font-awesome" color="#ffffff" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.controlButton, styles.rightButton]}
-            onPress={() => handleDirection(DIRECTIONS.RIGHT)}
-            activeOpacity={0.7}
-          >
-            <Icon name="arrow-right" type="font-awesome" color="#ffffff" />
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity
-          style={[styles.controlButton, styles.downButton]}
-          onPress={() => handleDirection(DIRECTIONS.DOWN)}
-          activeOpacity={0.7}
-        >
-          <Icon name="arrow-down" type="font-awesome" color="#ffffff" />
-        </TouchableOpacity>
-      </View>
-
-      {/* 游戏结束弹窗 */}
       {isGameOver && (
         <View style={styles.gameOver}>
-          <Text style={styles.gameOverText}>游戏结束</Text>
-          <Text style={styles.finalScore}>最终得分: {score}</Text>
+          <Text style={styles.gameOverText}>Game Over</Text>
+          <Text style={styles.finalScore}>Final Score: {score}</Text>
           <TouchableOpacity
             style={styles.restartButton}
             onPress={restartGame}
             activeOpacity={0.7}
           >
-            <Text style={styles.restartText}>重新开始</Text>
+            <Text style={styles.restartText}>Restart</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -265,6 +271,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
+    height: HEADER_HEIGHT,
   },
   score: {
     color: '#ffffff',
@@ -272,16 +279,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   pauseButton: {
-    padding: 10,
+    width: 40,
+    height: 40,
+    backgroundColor: '#333333',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   gameBoard: {
-    width: GRID_SIZE * CELL_SIZE,
-    height: GRID_SIZE * CELL_SIZE,
+    width: BOARD_SIZE,
+    height: BOARD_SIZE,
     borderWidth: 2,
     borderColor: '#333333',
     position: 'relative',
     alignSelf: 'center',
     backgroundColor: '#262626',
+    marginTop: (windowHeight - HEADER_HEIGHT - BOARD_SIZE) / 2 - GAME_PADDING,
   },
   snakeSegment: {
     width: CELL_SIZE - 2,
@@ -295,29 +308,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF5252',
     position: 'absolute',
     borderRadius: CELL_SIZE / 2,
-  },
-  controls: {
-    position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  horizontalControls: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    marginVertical: 10,
-  },
-  controlButton: {
-    width: 60,
-    height: 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 5,
   },
   gameOver: {
     position: 'absolute',
