@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from backend.src.database import get_db
-from backend.src.models.score import Score
-from backend.src.schemas.score import ScoreCreate, Score as ScoreSchema
+from ...src.database import get_db
+from ...src.models.score import Score
+from ...src.schemas.score import ScoreCreate, Score as ScoreSchema
 
 router = APIRouter()
 

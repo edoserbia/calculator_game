@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
-from backend.src.database import Base
+from ..database import Base
 
 class Score(Base):
     __tablename__ = "scores"

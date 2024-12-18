@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from backend.src.database import get_db
-from backend.src.models.secret import Secret
-from backend.src.schemas.secret import SecretCreate, Secret as SecretSchema, SecretVerify, SecretUpdate
+from ...src.database import get_db
+from ...src.models.secret import Secret
+from ...src.schemas.secret import SecretCreate, Secret as SecretSchema, SecretVerify, SecretUpdate
 
 router = APIRouter()
 

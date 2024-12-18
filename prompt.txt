@@ -23,3 +23,12 @@
 
 
 我创建了calculator database，但是dbeaver看不到，再次创建提示我已经有了。应该是权限问题，我希望创建了这个database之后postgres以及calculator_app用户有这个数据库的所有权限。并且把这些语句写到init.sql中，我手动运行就可以。
+
+
+
+
+
+
+
+
+根据frontend/readme.md的要求，生成前端
