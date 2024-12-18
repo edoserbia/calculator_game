@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, PanResponder } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { MaterialIcons } from '@expo/vector-icons';
 import { submitScore } from '../api';
 
 // Get screen dimensions
@@ -206,11 +206,10 @@ const SnakeGame = () => {
           style={styles.pauseButton}
           activeOpacity={0.7}
         >
-          <Icon
-            name={isPaused ? 'play' : 'pause'}
-            type="font-awesome"
+          <MaterialIcons
+            name={isPaused ? "play-arrow" : "pause"}
+            size={24}
             color="#ffffff"
-            size={20}
           />
         </TouchableOpacity>
       </View>

@@ -3,16 +3,16 @@ import { TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ThemeProvider } from 'react-native-elements';
-import { Icon } from 'react-native-elements';
+import { MaterialIcons } from '@expo/vector-icons';
 
-// 导入页面
+// Import screens
 import Calculator from './src/screens/Calculator';
 import ScientificCalc from './src/screens/ScientificCalc';
 import SnakeGame from './src/screens/SnakeGame';
 
 const Stack = createNativeStackNavigator();
 
-// 定义主题
+// Define theme
 const theme = {
   colors: {
     primary: '#2089dc',
@@ -40,7 +40,7 @@ export default function App() {
             headerTitleStyle: {
               fontWeight: 'bold',
             },
-            headerRight: () => (
+            headerRight: route.name !== 'SnakeGame' ? () => (
               <TouchableOpacity
                 onPress={() => {
                   if (route.name === 'Calculator') {
@@ -49,31 +49,31 @@ export default function App() {
                     navigation.navigate('Calculator');
                   }
                 }}
-                style={{ marginRight: 10 }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                style={{ padding: 10 }}
               >
-                <Icon
+                <MaterialIcons
                   name={route.name === 'Calculator' ? 'functions' : 'calculate'}
-                  type="material"
-                  color={theme.colors.white}
                   size={24}
+                  color={theme.colors.white}
                 />
               </TouchableOpacity>
-            ),
+            ) : undefined
           })}>
           <Stack.Screen 
             name="Calculator" 
             component={Calculator} 
-            options={{ title: '基础计算器' }}
+            options={{ title: 'Calculator' }}
           />
           <Stack.Screen 
             name="ScientificCalc" 
             component={ScientificCalc} 
-            options={{ title: '科学计算器' }}
+            options={{ title: 'Scientific Calculator' }}
           />
           <Stack.Screen 
             name="SnakeGame" 
             component={SnakeGame} 
-            options={{ title: '贪吃蛇' }}
+            options={{ title: 'Snake Game' }}
           />
         </Stack.Navigator>
       </NavigationContainer>
