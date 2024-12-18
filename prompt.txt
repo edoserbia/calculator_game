@@ -12,3 +12,14 @@
 10. 根目录要有一个readme文件，说明整体的文件结构和文件功能说明
 
 那么首先，我需要你帮我生成所有的readme文件，然后再进行开发
+
+
+
+
+
+
+
+
+
+
+我创建了calculator database，但是dbeaver看不到，再次创建提示我已经有了。应该是权限问题，我希望创建了这个database之后postgres以及calculator_app用户有这个数据库的所有权限。并且把这些语句写到init.sql中，我手动运行就可以。
