@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, PanResponder } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { submitScore } from '../api';
 
@@ -9,12 +9,13 @@ const windowHeight = Dimensions.get('window').height;
 const GRID_SIZE = 20;
 const HEADER_HEIGHT = 80;
 const GAME_PADDING = 20;
+const CONTROL_HEIGHT = 150; // Height for control buttons
 
 // Calculate the maximum possible cell size that will fit on the screen
 const CELL_SIZE = Math.floor(
   Math.min(
     (windowWidth - GAME_PADDING * 2) / GRID_SIZE,
-    (windowHeight - HEADER_HEIGHT - GAME_PADDING * 2) / GRID_SIZE
+    (windowHeight - HEADER_HEIGHT - CONTROL_HEIGHT - GAME_PADDING * 2) / GRID_SIZE
   )
 );
 
@@ -29,8 +30,6 @@ const DIRECTIONS = {
   RIGHT: { x: 1, y: 0 },
 };
 
-const SWIPE_THRESHOLD = 50;
-
 const SnakeGame = () => {
   const [snake, setSnake] = useState([
     { x: 10, y: 10 },
@@ -42,35 +41,6 @@ const SnakeGame = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [score, setScore] = useState(0);
   const [gameLoop, setGameLoop] = useState(null);
-
-  // Pan responder for swipe controls
-  const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => true,
-    onPanResponderRelease: (evt, gestureState) => {
-      const { dx, dy } = gestureState;
-      const absDx = Math.abs(dx);
-      const absDy = Math.abs(dy);
-
-      if (Math.max(absDx, absDy) < SWIPE_THRESHOLD) return;
-
-      if (absDx > absDy) {
-        // Horizontal swipe
-        if (dx > 0) {
-          handleDirection(DIRECTIONS.RIGHT);
-        } else {
-          handleDirection(DIRECTIONS.LEFT);
-        }
-      } else {
-        // Vertical swipe
-        if (dy > 0) {
-          handleDirection(DIRECTIONS.DOWN);
-        } else {
-          handleDirection(DIRECTIONS.UP);
-        }
-      }
-    },
-  });
 
   // Generate new food position
   const generateFood = useCallback(() => {
@@ -214,10 +184,7 @@ const SnakeGame = () => {
         </TouchableOpacity>
       </View>
 
-      <View 
-        style={styles.gameBoard}
-        {...panResponder.panHandlers}
-      >
+      <View style={styles.gameBoard}>
         <View
           style={[
             styles.food,
@@ -241,6 +208,35 @@ const SnakeGame = () => {
             ]}
           />
         ))}
+      </View>
+
+      <View style={styles.controls}>
+        <TouchableOpacity 
+          style={[styles.controlButton, styles.upButton]}
+          onPress={() => handleDirection(DIRECTIONS.UP)}
+        >
+          <MaterialIcons name="keyboard-arrow-up" size={40} color="#ffffff" />
+        </TouchableOpacity>
+        <View style={styles.horizontalControls}>
+          <TouchableOpacity 
+            style={[styles.controlButton, styles.leftButton]}
+            onPress={() => handleDirection(DIRECTIONS.LEFT)}
+          >
+            <MaterialIcons name="keyboard-arrow-left" size={40} color="#ffffff" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.controlButton, styles.rightButton]}
+            onPress={() => handleDirection(DIRECTIONS.RIGHT)}
+          >
+            <MaterialIcons name="keyboard-arrow-right" size={40} color="#ffffff" />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity 
+          style={[styles.controlButton, styles.downButton]}
+          onPress={() => handleDirection(DIRECTIONS.DOWN)}
+        >
+          <MaterialIcons name="keyboard-arrow-down" size={40} color="#ffffff" />
+        </TouchableOpacity>
       </View>
 
       {isGameOver && (
@@ -293,7 +289,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     alignSelf: 'center',
     backgroundColor: '#262626',
-    marginTop: (windowHeight - HEADER_HEIGHT - BOARD_SIZE) / 2 - GAME_PADDING,
+    marginTop: 20,
   },
   snakeSegment: {
     width: CELL_SIZE - 2,
@@ -307,6 +303,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF5252',
     position: 'absolute',
     borderRadius: CELL_SIZE / 2,
+  },
+  controls: {
+    height: CONTROL_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  horizontalControls: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    marginVertical: 10,
+  },
+  controlButton: {
+    width: 60,
+    height: 60,
+    backgroundColor: '#333333',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 5,
   },
   gameOver: {
     position: 'absolute',

@@ -42,17 +42,17 @@ export default function App() {
           <Stack.Screen 
             name="Calculator" 
             component={Calculator} 
-            options={{ title: '基础计算器' }}
+            options={{ title: 'Calculator' }}
           />
           <Stack.Screen 
             name="ScientificCalc" 
             component={ScientificCalc} 
-            options={{ title: '科学计算器' }}
+            options={{ title: 'Scientific Calculator' }}
           />
           <Stack.Screen 
             name="SnakeGame" 
             component={SnakeGame} 
-            options={{ title: '贪吃蛇' }}
+            options={{ title: 'Snake Game' }}
           />
         </Stack.Navigator>
       </NavigationContainer>

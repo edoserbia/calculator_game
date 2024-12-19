@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import CalcButton from '../components/CalcButton';
 import CalcDisplay from '../components/CalcDisplay';
 
@@ -75,7 +75,7 @@ const ScientificCalc = () => {
 
   const calculate = () => {
     try {
-      // 替换三角函数为JavaScript Math函数
+      // Replace trigonometric functions with JavaScript Math functions
       let evalExpression = expression
         .replace(/sin/g, 'Math.sin')
         .replace(/cos/g, 'Math.cos')
@@ -85,7 +85,7 @@ const ScientificCalc = () => {
       setExpression(evalResult.toString());
       setIsNewCalculation(true);
     } catch (error) {
-      setResult('错误');
+      setResult('Error');
       setIsNewCalculation(false);
     }
   };
@@ -93,50 +93,60 @@ const ScientificCalc = () => {
   return (
     <View style={styles.container}>
       <CalcDisplay expression={expression} result={result} />
-      <ScrollView style={styles.buttonContainer}>
+      <View style={styles.buttonContainer}>
         <View style={styles.row}>
           <CalcButton title="sin" onPress={() => handleFunction('sin')} type="function" />
           <CalcButton title="cos" onPress={() => handleFunction('cos')} type="function" />
           <CalcButton title="tan" onPress={() => handleFunction('tan')} type="function" />
           <CalcButton title="π" onPress={() => handleFunction('π')} type="function" />
+          <CalcButton title="e" onPress={() => handleFunction('e')} type="function" />
         </View>
         <View style={styles.row}>
           <CalcButton title="ln" onPress={() => handleFunction('ln')} type="function" />
           <CalcButton title="log" onPress={() => handleFunction('log')} type="function" />
-          <CalcButton title="e" onPress={() => handleFunction('e')} type="function" />
-          <CalcButton title="^" onPress={() => handleOperator('**')} type="operator" />
-        </View>
-        <View style={styles.row}>
           <CalcButton title="(" onPress={() => handleOperator('(')} type="function" />
           <CalcButton title=")" onPress={() => handleOperator(')')} type="function" />
-          <CalcButton title="C" onPress={handleClear} type="function" />
-          <CalcButton title="⌫" onPress={handleDelete} type="function" />
+          <CalcButton title="^" onPress={() => handleOperator('**')} type="operator" />
         </View>
         <View style={styles.row}>
           <CalcButton title="7" onPress={() => handleNumber('7')} />
           <CalcButton title="8" onPress={() => handleNumber('8')} />
           <CalcButton title="9" onPress={() => handleNumber('9')} />
           <CalcButton title="÷" onPress={() => handleOperator('/')} type="operator" />
+          <CalcButton title="C" onPress={handleClear} type="function" />
         </View>
         <View style={styles.row}>
           <CalcButton title="4" onPress={() => handleNumber('4')} />
           <CalcButton title="5" onPress={() => handleNumber('5')} />
           <CalcButton title="6" onPress={() => handleNumber('6')} />
           <CalcButton title="×" onPress={() => handleOperator('*')} type="operator" />
+          <CalcButton title="⌫" onPress={handleDelete} type="function" />
         </View>
         <View style={styles.row}>
           <CalcButton title="1" onPress={() => handleNumber('1')} />
           <CalcButton title="2" onPress={() => handleNumber('2')} />
           <CalcButton title="3" onPress={() => handleNumber('3')} />
           <CalcButton title="-" onPress={() => handleOperator('-')} type="operator" />
+          <CalcButton title="=" onPress={calculate} type="operator" />
         </View>
         <View style={styles.row}>
           <CalcButton title="0" onPress={() => handleNumber('0')} />
           <CalcButton title="." onPress={() => handleNumber('.')} />
-          <CalcButton title="=" onPress={calculate} type="operator" />
+          <CalcButton title="±" onPress={() => {
+            const currentValue = parseFloat(result);
+            const newValue = -currentValue;
+            setResult(newValue.toString());
+            setExpression(expression.slice(0, -result.length) + newValue);
+          }} type="function" />
           <CalcButton title="+" onPress={() => handleOperator('+')} type="operator" />
+          <CalcButton title="%" onPress={() => {
+            const currentValue = parseFloat(result);
+            const percentValue = currentValue / 100;
+            setResult(percentValue.toString());
+            setExpression(expression.slice(0, -result.length) + percentValue);
+          }} type="function" />
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -148,12 +158,13 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flex: 1,
-    padding: 10,
+    padding: 2,
   },
   row: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 2,
   },
 });
 
