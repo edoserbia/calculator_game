@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Calculator",
+    "slug": "calculator",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "permissions": []
+    },
+    "plugins": [
+      "expo-screen-orientation"
+    ]
+  }
+} 
