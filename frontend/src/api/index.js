@@ -1,4 +1,7 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+// 根据环境使用不同的API地址
+const API_BASE_URL = __DEV__ 
+  ? 'http://192.168.3.157:8000/api'  // 开发环境使用你的主机IP
+  : 'http://localhost:8000/api';     // 生产环境使用服务器地址
 
 export const verifySecret = async (code) => {
   try {
