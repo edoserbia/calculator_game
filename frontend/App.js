@@ -32,7 +32,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName="Calculator"
-          screenOptions={({ navigation, route }) => ({
+          screenOptions={{
             headerStyle: {
               backgroundColor: theme.colors.background,
             },
@@ -40,40 +40,53 @@ export default function App() {
             headerTitleStyle: {
               fontWeight: 'bold',
             },
-            headerRight: route.name !== 'SnakeGame' ? () => (
-              <TouchableOpacity
-                onPress={() => {
-                  if (route.name === 'Calculator') {
-                    navigation.navigate('ScientificCalc');
-                  } else if (route.name === 'ScientificCalc') {
-                    navigation.navigate('Calculator');
-                  }
-                }}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                style={{ padding: 10 }}
-              >
-                <MaterialIcons
-                  name={route.name === 'Calculator' ? 'functions' : 'calculate'}
-                  size={24}
-                  color={theme.colors.white}
-                />
-              </TouchableOpacity>
-            ) : undefined
-          })}>
+            gestureEnabled: false,
+            animation: 'none'
+          }}>
           <Stack.Screen 
             name="Calculator" 
             component={Calculator} 
-            options={{ title: 'Calculator' }}
+            options={({ navigation }) => ({
+              title: 'Calculator',
+              headerRight: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('ScientificCalc')}
+                  style={{ padding: 8 }}
+                >
+                  <MaterialIcons
+                    name="functions"
+                    size={24}
+                    color={theme.colors.white}
+                  />
+                </TouchableOpacity>
+              ),
+            })}
           />
           <Stack.Screen 
             name="ScientificCalc" 
             component={ScientificCalc} 
-            options={{ title: 'Scientific Calculator' }}
+            options={({ navigation }) => ({
+              title: 'Scientific Calculator',
+              headerRight: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Calculator')}
+                  style={{ padding: 8 }}
+                >
+                  <MaterialIcons
+                    name="calculate"
+                    size={24}
+                    color={theme.colors.white}
+                  />
+                </TouchableOpacity>
+              ),
+            })}
           />
           <Stack.Screen 
             name="SnakeGame" 
             component={SnakeGame} 
-            options={{ title: 'Snake Game' }}
+            options={{
+              title: 'Snake Game'
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>
